@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Happy Birthday!</title>
+<style>
+  body {
+    margin: 0;
+    overflow: hidden;
+    background-color: black;
+    font-family: Arial, sans-serif;
+  }
+  .birthday-text {
+    position: absolute;
+    white-space: nowrap;
+    font-size: 30px; /* Adjust as needed */
+    font-weight: bold;
+    animation: moveText 60s linear infinite; /* Increased duration for slower movement */
+    z-index: 1; /* Ensure text is above the image */
+  }
+
+  @keyframes moveText {
+    from { transform: translateX(0%); }
+    to { transform: translateX(-100%); }
+  }
+
+  #background-image {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* or 'cover' depending on desired effect */
+    z-index: 0; /* Ensure image is behind the text */
+  }
+</style>
+</head>
+<body>
+
+<img id="background-image" src="https://generated-images.history-daily.com/generated_images/b5753b8f16c5b969046c8227b235ed06.png" alt="Birthday Background">
+
+<script>
+  const body = document.body;
+  const screenWidth = window.innerWidth;
+  const screenHeight = window.innerHeight;
+  const textContent = "Happy Birthday! ";
+  let textElements = [];
+
+  function getRandomColor() {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+  }
+
+  function createTextLine(yPosition) {
+    let lineContainer = document.createElement('div');
+    lineContainer.className = 'birthday-text';
+    lineContainer.style.top = yPosition + 'px';
+    lineContainer.style.color = getRandomColor();
+    
+    let fullLineText = "";
+    // Estimate how many times the text needs to repeat to fill the screen width initially
+    const estimatedTextWidth = 30 * textContent.length * 0.6; // Approximation
+    const repetitions = Math.ceil(screenWidth / estimatedTextWidth) + 2; // Add some buffer
+
+    for (let i = 0; i < repetitions; i++) {
+      fullLineText += textContent;
+    }
+    lineContainer.textContent = fullLineText;
+    body.appendChild(lineContainer);
+    textElements.push(lineContainer);
+  }
+
+  // Create multiple lines to fill the screen height
+  const lineHeight = 40; // Approx height of the text line
+  for (let i = 0; i < screenHeight / lineHeight; i++) {
+    createTextLine(i * lineHeight);
+  }
+
+  // Adjust animation duration based on content length for continuous loop
+  textElements.forEach(el => {
+    const textWidth = el.scrollWidth;
+    const duration = textWidth / (screenWidth / 60); // Adjust 60 for desired speed
+    el.style.animationDuration = duration + 's';
+  });
+
+</script>
+
+</body>
+</html>
