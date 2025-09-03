@@ -11,30 +11,33 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh; /* Make body fill viewport height */
-    position: relative; /* For absolute positioning of confetti and text */
+    height: 100vh;
+    position: relative;
+  }
+  .birthday-text-container {
+    position: absolute;
+    width: 100%;
+    overflow: hidden; /* Hide extra text to create marquee */
   }
   .birthday-text {
-    position: absolute;
     white-space: nowrap;
-    font-size: 30px; /* Adjust as needed */
+    font-size: 30px;
     font-weight: bold;
-    animation: moveText 60s linear infinite; /* Increased duration for slower movement */
-    z-index: 2; /* Ensure text is above the image */
+    animation: moveText var(--duration) linear infinite;
   }
 
   @keyframes moveText {
-    from { transform: translateX(0%); }
-    to { transform: translateX(-100%); }
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-100%); }
   }
 
   #center-image-container {
     position: relative;
-    z-index: 1; /* Ensure image is behind the text but above body background */
+    z-index: 1;
     display: flex;
     justify-content: center;
     align-items: center;
-    max-width: 90vw; /* Keep image within view */
+    max-width: 90vw;
     max-height: 90vh;
   }
 
@@ -42,7 +45,7 @@
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
-    border-radius: 10px; /* Optional: adds a slight rounded corner to the image */
+    border-radius: 10px;
   }
 
   /* CSS for Confetti */
@@ -56,7 +59,8 @@
     animation-name: fall;
     animation-timing-function: linear;
     animation-iteration-count: infinite;
-    z-index: 3; /* Ensure confetti is above everything else */
+    z-index: 3;
+    transform-origin: center top;
   }
 
   @keyframes fall {
@@ -74,7 +78,7 @@
 <body>
 
 <div id="center-image-container">
-  <img id="center-image" src="https://generated-images.history-daily.com/generated_images/b5753b8f16c5b969046c8227b235ed06.png" alt="Happy Birthday Person">
+  <img id="center-image" src="1.jpg" alt="Happy Birthday Person">
 </div>
 
 <script>
@@ -82,8 +86,8 @@
   const screenWidth = window.innerWidth;
   const screenHeight = window.innerHeight;
   const textContent = "Happy Birthday! ";
-  let textElements = [];
-
+  const lineHeight = 40;
+  
   function getRandomColor() {
     const letters = '0123456789ABCDEF';
     let color = '#';
@@ -93,43 +97,40 @@
     return color;
   }
 
-  function createTextLine(yPosition, offsetLeft = 0) {
-    let lineContainer = document.createElement('div');
-    lineContainer.className = 'birthday-text';
-    lineContainer.style.top = yPosition + 'px';
-    lineContainer.style.color = getRandomColor();
-    lineContainer.style.left = offsetLeft + 'px'; // Add offset for initial positioning
+  function createTextMarquee(yPosition) {
+    const container = document.createElement('div');
+    container.className = 'birthday-text-container';
+    container.style.top = yPosition + 'px';
     
-    let fullLineText = "";
-    // Estimate how many times the text needs to repeat to fill the screen width initially
-    const estimatedTextWidth = 30 * textContent.length * 0.6; // Approximation based on font-size
-    const repetitions = Math.ceil((screenWidth + Math.abs(offsetLeft)) / estimatedTextWidth) + 2; // Add buffer
+    const textWrapper = document.createElement('div');
+    textWrapper.className = 'birthday-text';
+    textWrapper.style.color = getRandomColor();
 
+    let fullLineText = "";
+    // Repeat the text to ensure it fills the screen and creates a seamless loop
+    const repetitions = Math.ceil(screenWidth / (textContent.length * 30 * 0.6)) + 2; 
     for (let i = 0; i < repetitions; i++) {
       fullLineText += textContent;
     }
-    lineContainer.textContent = fullLineText;
-    body.appendChild(lineContainer);
-    textElements.push(lineContainer);
+    textWrapper.textContent = fullLineText;
+    
+    container.appendChild(textWrapper);
+    body.appendChild(container);
+    
+    // Set the animation duration based on the text width for a consistent speed
+    const textWidth = textWrapper.scrollWidth;
+    const speed = 10; // Pixels per second
+    const duration = textWidth / speed;
+    textWrapper.style.setProperty('--duration', `${duration}s`);
   }
 
-  // Clear existing text elements if any from previous runs
-  document.querySelectorAll('.birthday-text').forEach(el => el.remove());
-  textElements = []; // Reset array
+  // Clear existing text elements before creating new ones
+  document.querySelectorAll('.birthday-text-container').forEach(el => el.remove());
 
-  const lineHeight = 40; // Approx height of the text line
+  // Create text lines to fill the screen
   for (let i = 0; i < screenHeight / lineHeight; i++) {
-    // Start text off-screen to the right to ensure it scrolls in
-    createTextLine(i * lineHeight, screenWidth / 2); // Start halfway across for a wrapping effect
+    createTextMarquee(i * lineHeight);
   }
-
-  textElements.forEach(el => {
-    const textWidth = el.scrollWidth;
-    // Adjust animation duration dynamically for consistent speed regardless of text content length
-    const speedFactor = 50; // Smaller number = faster, Larger number = slower
-    const duration = (textWidth / screenWidth) * speedFactor; 
-    el.style.animationDuration = duration + 's';
-  });
 </script>
 
 <script>
@@ -138,17 +139,17 @@
     confetti.className = 'confetti';
     confetti.style.backgroundColor = getRandomColor();
     confetti.style.left = Math.random() * 100 + 'vw';
-    confetti.style.animationDuration = Math.random() * 3 + 2 + 's'; // Varies from 2 to 5 seconds
+    confetti.style.animationDuration = Math.random() * 3 + 2 + 's';
     body.appendChild(confetti);
-
-    // Remove confetti after it falls off screen
     confetti.addEventListener('animationend', () => {
       confetti.remove();
     });
   }
 
-  // Generate confetti at a regular interval
   setInterval(createConfetti, 100);
+  for (let i = 0; i < 50; i++) {
+      createConfetti();
+  }
 </script>
 
 </body>
